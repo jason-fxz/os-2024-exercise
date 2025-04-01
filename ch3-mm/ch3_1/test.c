@@ -55,7 +55,7 @@ void test_mmap_remap() {
     // Allocate initial memory
     size_t size = PAGE_SIZE * 2;
     void* addr1 = mmap(NULL, size, PROT_READ | PROT_WRITE, 
-                      MAP_PRIVATE, -1, 0);
+                      MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     
     // Write pattern to memory
     memset(addr1, 0xAA, size);
