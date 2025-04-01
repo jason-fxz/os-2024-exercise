@@ -20,6 +20,11 @@ uint64_t get_physical_address(void *virtual_address) {
     uint64_t offset = ((uintptr_t)virtual_address / PAGE_SIZE) * sizeof(uint64_t);
     uint64_t entry;
 
+    if (pread(pagemap_fd, &entry, sizeof(entry), offset) != sizeof(entry)) {
+        close(pagemap_fd);
+        return 0;
+    }
+
     close(pagemap_fd);
 
     if (!(entry & (1ULL << 63))) {
