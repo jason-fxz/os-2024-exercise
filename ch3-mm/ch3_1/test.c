@@ -16,6 +16,10 @@ extern int file_mmap_write(const char *filename, size_t offset, char *content);
 #define PAGE_SIZE 4096
 #define LARGE_SIZE (1024 * 1024) // 1MB
 
+int is_root() {
+  return (geteuid() == 0);
+}
+
 uint64_t get_physical_address(void *virtual_address) {
   int pagemap_fd = open("/proc/self/pagemap", O_RDONLY);
 
@@ -90,7 +94,7 @@ void test_file_operations(const char *filename, size_t filesize) {
 
   // Create test file
   create_test_file(filename, filesize);
-  
+
   // Test 1: Read-after-write
   char content1[] = "TEST_CONTENT_1";
   assert(file_mmap_write(filename, 0, content1) == 0);
@@ -132,6 +136,13 @@ void test_file_operations(const char *filename, size_t filesize) {
 }
 
 int main() {
+  // Check for root permissions
+  if (!is_root()) {
+    fprintf(stderr, "WARNING: This program requires root privileges to access /proc/self/pagemap.\n");
+    fprintf(stderr, "Please run with sudo or as root user.\n");
+    return 1;
+  }
+
   // Test 1: Page table entry validation
   test_mmap_remap();
   printf("Remapping Passed.\n");
