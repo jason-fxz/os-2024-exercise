@@ -17,22 +17,22 @@ void* thread_function(void* arg) {
         int operation = rand() % 2; 
 
         if (operation) {
+            pthread_mutex_lock(&mutex);
             if (write_kv(k, v) != -1) {
-                pthread_mutex_lock(&mutex);
                 expected_values[k] = v;
-                pthread_mutex_unlock(&mutex);
             } else {
                 printf("Error writing key %d\n", k);
             }
-        } else {
-            int read_value = read_kv(k);
-            pthread_mutex_lock(&mutex);
-            int expected_value = expected_values[k];
             pthread_mutex_unlock(&mutex);
+        } else {
+            pthread_mutex_lock(&mutex);
+            int read_value = read_kv(k);
+            int expected_value = expected_values[k];
             
             if (read_value != -1 && read_value != expected_value) {
                 printf("Data inconsistency detected for key %d: expected %d, got %d\n", k, expected_value, read_value);
             }
+            pthread_mutex_unlock(&mutex);
         }
     }
     return NULL;
